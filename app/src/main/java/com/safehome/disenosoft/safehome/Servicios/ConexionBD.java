@@ -191,12 +191,12 @@ public class ConexionBD {
         }
     }
 
-    public Habitante CrearHabitante(Habitante habitante, List<Bitmap> fotos){
+    public Habitante CrearHabitante(Habitante habitante/*, List<Bitmap> fotos*/){
         Habitante aux = ObtenerHabitante(habitante.getId());
 
         if(aux == null){
             crearHabitante(habitante);
-            crearFotos(habitante.getId(),fotos);
+            //crearFotos(habitante.getId(),fotos);
             return habitante;
         }
         return null;
@@ -239,7 +239,7 @@ public class ConexionBD {
         }
     }
 
-    private void crearFotos(String correo, List<Bitmap> fotos){
+    public void CrearFotos(String correo, String nombre, List<Bitmap> fotos){
         URL url;
         HttpURLConnection urlConexion = null;
 
@@ -255,7 +255,7 @@ public class ConexionBD {
 
             OutputStreamWriter  wr = new OutputStreamWriter (urlConexion.getOutputStream());
 
-            String dataString = "{ \"_id\": \"%s\", \"fotos\": [%s] }";
+            String dataString = "{ \"_id\": \"%s\", \"nombre\": \"%s\", \"fotos\": [%s] }";
 
             String arregloFotos = "";
 
@@ -278,7 +278,7 @@ public class ConexionBD {
 
             /*----*/
 
-            dataString = String.format(dataString,correo,arregloFotos);
+            dataString = String.format(dataString,correo,nombre,arregloFotos);
 
             wr.write(dataString);
             wr.flush();
