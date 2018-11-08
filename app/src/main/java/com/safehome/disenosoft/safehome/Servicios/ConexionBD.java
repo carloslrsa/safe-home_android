@@ -41,12 +41,14 @@ public class ConexionBD {
     private static String urlModificarFotos = "https://api.mlab.com/api/1/databases/safe_home/collections/fotos?apiKey=JFoAa9aNXLSup9OeTp9UwsH0vVP1w4j9&q=%s";
 
 
-    private static String urlModificarSistema = "https://api.mlab.com/api/1/databases/safe_home/collections/sistema?apiKey=JFoAa9aNXLSup9OeTp9UwsH0vVP1w4j9&q={\"_id\":\"5bdc0bb9fb6fc074abb59124\"}";
+    private static String urlModificarSistema = "https://api.mlab.com/api/1/databases/safe_home/collections/sistema?apiKey=JFoAa9aNXLSup9OeTp9UwsH0vVP1w4j9&q=%s";
 
 
     public void EliminarHabitante(Habitante habitante){
         eliminarHabitante(habitante);
         eliminarFotosHabitante(habitante);
+
+        notificarCambiosDeHabitante(true);
     }
 
     public Habitante ObtenerHabitante(String correo){
@@ -189,6 +191,8 @@ public class ConexionBD {
         }finally {
             urlConexion.disconnect();
         }
+
+        notificarCambiosDeHabitante(true);
     }
 
     public Habitante CrearHabitante(Habitante habitante/*, List<Bitmap> fotos*/){
@@ -197,6 +201,8 @@ public class ConexionBD {
         if(aux == null){
             crearHabitante(habitante);
             //crearFotos(habitante.getId(),fotos);
+
+            notificarCambiosDeHabitante(true);
             return habitante;
         }
         return null;
@@ -351,6 +357,45 @@ public class ConexionBD {
             OutputStreamWriter  wr = new OutputStreamWriter (urlConexion.getOutputStream());
 
             String dataString = "[]";
+
+            wr.write(dataString);
+            wr.flush();
+            wr.close();
+
+            urlConexion.getResponseCode();
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (ProtocolException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            urlConexion.disconnect();
+        }
+
+
+    }
+
+    private void notificarCambiosDeHabitante(boolean cambio){
+        URL url;
+        HttpURLConnection urlConexion = null;
+
+        try {
+            url = new URL(String.format(urlModificarSistema,URLEncoder.encode("{\"_id\":\"5bdc0bb9fb6fc074abb59124\"}","utf-8")));
+            urlConexion = (HttpURLConnection) url.openConnection();
+
+            urlConexion.setDoOutput(true);
+
+            urlConexion.setRequestMethod("PUT");
+            urlConexion.setRequestProperty("Content-Type","application/json;charset=utf-8");
+            urlConexion.setRequestProperty("Accept","application/json");
+
+            OutputStreamWriter  wr = new OutputStreamWriter (urlConexion.getOutputStream());
+
+            String dataString = "{ \"$set\"  : { \"cambiosHabitantes\": %b } }";
+
+            dataString = String.format(dataString,cambio);
 
             wr.write(dataString);
             wr.flush();
