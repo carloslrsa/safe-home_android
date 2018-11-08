@@ -47,10 +47,6 @@ public class RegistrarHabitanteActivity extends AppCompatActivity {
     TextInputLayout correo;
 
     Button registrar;
-    Button subirFotos;
-    Button rotarFotos;
-
-    int anguloRotacion = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +61,6 @@ public class RegistrarHabitanteActivity extends AppCompatActivity {
 
         registrar = (Button) findViewById(R.id.registrarRegistroButton);
 
-        registrar.setEnabled(false);
 
         nombres.getEditText().addTextChangedListener(new TextWatcher() {
             @Override
@@ -151,9 +146,7 @@ public class RegistrarHabitanteActivity extends AppCompatActivity {
         nombres.setEnabled(false);
         apellidos.setEnabled(false);
         correo.setEnabled(false);
-        subirFotos.setEnabled(false);
         registrar.setEnabled(false);
-        rotarFotos.setEnabled(false);
 
         Habitante nuevoHabitante = new Habitante(correo.getEditText().getText().toString(),nombres.getEditText().getText().toString(),apellidos.getEditText().getText().toString(),0,true,"","");
 
@@ -180,7 +173,6 @@ public class RegistrarHabitanteActivity extends AppCompatActivity {
         nombres.setEnabled(true);
         apellidos.setEnabled(true);
         correo.setEnabled(true);
-        subirFotos.setEnabled(true);
         registrar.setEnabled(true);
 
         correo.setError("Correo ya existente");

@@ -202,7 +202,7 @@ public class ConexionBD {
             crearHabitante(habitante);
             //crearFotos(habitante.getId(),fotos);
 
-            notificarCambiosDeHabitante(true);
+
             return habitante;
         }
         return null;
@@ -300,6 +300,7 @@ public class ConexionBD {
             e.printStackTrace();
         }finally {
             urlConexion.disconnect();
+            notificarCambiosDeHabitante(true);
         }
     }
 
@@ -373,7 +374,6 @@ public class ConexionBD {
         }finally {
             urlConexion.disconnect();
         }
-
 
     }
 
