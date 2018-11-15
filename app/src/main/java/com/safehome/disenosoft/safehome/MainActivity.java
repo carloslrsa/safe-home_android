@@ -93,13 +93,12 @@ public class MainActivity extends AppCompatActivity
 
         inicializar();
 
-        stopService();
-        startService();
+        //stopService();
+        //startService();
     }
 
     public void startService() {
         Intent serviceIntent = new Intent(this, NotificationService.class);
-        serviceIntent.putExtra("miHabitante", miHabitante);
         ContextCompat.startForegroundService(this, serviceIntent);
     }
 
