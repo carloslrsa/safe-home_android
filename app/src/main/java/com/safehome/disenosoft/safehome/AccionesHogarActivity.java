@@ -1,5 +1,6 @@
 package com.safehome.disenosoft.safehome;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -8,11 +9,17 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
+
+import com.safehome.disenosoft.safehome.Servicios.ConexionBD;
 
 public class AccionesHogarActivity extends AppCompatActivity {
 
     WebView camara;
+
+    Button abrirPuerta;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +36,27 @@ public class AccionesHogarActivity extends AppCompatActivity {
 
         camara = (WebView)findViewById(R.id.camaraWebView);
 
-        camara.loadUrl("http://190.235.213.122:5000");
+        final EditText ip = (EditText) findViewById(R.id.ipEditText);
+
+        abrirPuerta = (Button) findViewById(R.id.abrirPuertaButton);
+
+        camara.loadUrl("http://192.168.1.13:5000");
+        //Toast.makeText(AccionesHogarActivity.this, "Cargando " + ip.getText().toString(), Toast.LENGTH_SHORT).show();
+
+        abrirPuerta.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //camara.loadUrl(ip.getText().toString());
+                //Toast.makeText(AccionesHogarActivity.this, "Cargando " + ip.getText().toString(), Toast.LENGTH_SHORT).show();
+                new AbrirPuertaTask().execute();
+            }
+        });
+
+
+    }
+    
+    private void PuertaAbierta(){
+        Toast.makeText(this, "La puerta se abrirá de inmediato", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -46,4 +73,19 @@ public class AccionesHogarActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+    public class AbrirPuertaTask extends AsyncTask<Void, Integer, Boolean>{
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            ConexionBD.getInstancia().AbrirPuerta();
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            PuertaAbierta();
+        }
+    }
+
 }

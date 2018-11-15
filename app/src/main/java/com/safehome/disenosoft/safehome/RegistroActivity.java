@@ -265,7 +265,7 @@ public class RegistroActivity extends AppCompatActivity {
                                     protected Habitante doInBackground(Habitante... habitante) {
                                         Habitante miHabitante = habitante[0];
                                         ConexionBD.getInstancia().ModificarHabitante(miHabitante);
-                                        ConexionBD.getInstancia().CrearFotos(miHabitante.getId(),miHabitante.getNombres(), fotosBitmap);
+                                        ConexionBD.getInstancia().CrearFotos(miHabitante.getId(),miHabitante.getNombres(), miHabitante.getPin(), fotosBitmap);
                                         return miHabitante;
                                     }
 

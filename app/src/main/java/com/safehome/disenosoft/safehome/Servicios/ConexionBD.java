@@ -4,6 +4,8 @@ import android.graphics.Bitmap;
 import android.util.Base64;
 import android.util.Log;
 
+import com.google.gson.JsonObject;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -245,7 +248,7 @@ public class ConexionBD {
         }
     }
 
-    public void CrearFotos(String correo, String nombre, List<Bitmap> fotos){
+    public void CrearFotos(String correo, String nombre, String pin, List<Bitmap> fotos){
         URL url;
         HttpURLConnection urlConexion = null;
 
@@ -261,7 +264,7 @@ public class ConexionBD {
 
             OutputStreamWriter  wr = new OutputStreamWriter (urlConexion.getOutputStream());
 
-            String dataString = "{ \"_id\": \"%s\", \"nombre\": \"%s\", \"fotos\": [%s] }";
+            String dataString = "{ \"_id\": \"%s\", \"nombre\": \"%s\", \"pin\": \"%s\", \"fotos\": [%s] }";
 
             String arregloFotos = "";
 
@@ -284,7 +287,7 @@ public class ConexionBD {
 
             /*----*/
 
-            dataString = String.format(dataString,correo,nombre,arregloFotos);
+            dataString = String.format(dataString,correo,nombre,pin,arregloFotos);
 
             wr.write(dataString);
             wr.flush();
@@ -382,7 +385,7 @@ public class ConexionBD {
         HttpURLConnection urlConexion = null;
 
         try {
-            url = new URL(String.format(urlModificarSistema,URLEncoder.encode("{\"_id\":\"5bdc0bb9fb6fc074abb59124\"}","utf-8")));
+            url = new URL(String.format(urlModificarSistema,URLEncoder.encode("{\"_id\":{\"$oid\":\"5bdc0bb9fb6fc074abb59124\"}}","utf-8")));
             urlConexion = (HttpURLConnection) url.openConnection();
 
             urlConexion.setDoOutput(true);
@@ -412,6 +415,110 @@ public class ConexionBD {
         }finally {
             urlConexion.disconnect();
         }
+    }
+
+    int respuesta = 0;
+    public void AbrirPuerta(){
+        URL url;
+        HttpURLConnection urlConexion = null;
+
+        try {
+            url = new URL(String.format(urlModificarSistema,URLEncoder.encode("{\"_id\":{\"$oid\":\"5bdc0bb9fb6fc074abb59124\"}}","utf-8")));
+            urlConexion = (HttpURLConnection) url.openConnection();
+
+            urlConexion.setDoOutput(true);
+
+            urlConexion.setRequestMethod("PUT");
+            urlConexion.setRequestProperty("Content-Type","application/json;charset=utf-8");
+            urlConexion.setRequestProperty("Accept","application/json");
+
+            OutputStreamWriter  wr = new OutputStreamWriter (urlConexion.getOutputStream());
+
+            String dataString = "{ \"$set\"  : { \"instruccionCerradura\": %b } }";
+
+            dataString = String.format(dataString,true);
+
+            wr.write(dataString);
+            wr.flush();
+            wr.close();
+
+            respuesta = urlConexion.getResponseCode();
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (ProtocolException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            urlConexion.disconnect();
+        }
+    }
+
+    public ArrayList<Rostro> ObtenerRostrosDetectados(){
+        URL url;
+        HttpURLConnection urlConexion = null;
+        ArrayList<Rostro> rostros = null;
+        try {
+            url = new URL(String.format(urlModificarSistema,URLEncoder.encode("{\"_id\":{\"$oid\":\"5bdc0bb9fb6fc074abb59124\"}}","utf-8")));
+            urlConexion = (HttpURLConnection) url.openConnection();
+            urlConexion.setRequestMethod("GET");
+            urlConexion.setRequestProperty("Content-Type","application/json;charset=utf-8");
+            urlConexion.setRequestProperty("Accept","application/json");
+            urlConexion.connect();
+
+            int respuesta = urlConexion.getResponseCode();
+            InputStreamReader inputStream = null;
+
+            if(respuesta >= 200 && respuesta <400){
+                inputStream = new InputStreamReader(urlConexion.getInputStream());
+            }else{
+                inputStream = new InputStreamReader(urlConexion.getErrorStream());
+            }
+
+            BufferedReader br = new BufferedReader(inputStream);
+            String temp = null;
+            do{
+                temp = br.readLine();
+            }while (br.ready());
+
+
+            JSONArray array = new JSONArray(temp);
+
+            if(array.length() > 0){
+                JSONObject jsonObject = array.getJSONObject(0);
+                if(jsonObject.getBoolean("notificacionRostros")){
+                    JSONArray valores = jsonObject.getJSONArray("ultimosRostrosReconocidos");
+                    rostros = new ArrayList<Rostro>();
+                    for ( int i = 0; i < valores.length() ; i ++){
+                        JSONArray actual = valores.getJSONArray(i);
+                        String nombre = actual.getString(1);
+                        boolean esConocido = actual.getBoolean(0);
+
+                        rostros.add(new Rostro(nombre,esConocido));
+                    }
+                }
+
+                /*retorno = new Habitante(
+                        jsonObject.getString("_id"),
+                        jsonObject.getString("nombres"),
+                        jsonObject.getString("apellidos"),
+                        jsonObject.getInt("tipoCuenta"),
+                        jsonObject.getBoolean("primeraVez"),
+                        jsonObject.getString("pin"),
+                        jsonObject.getString("foto")
+                );*/
+            }
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }finally {
+            urlConexion.disconnect();
+        }
+        return rostros;
     }
 
 }

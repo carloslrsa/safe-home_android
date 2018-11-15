@@ -1,12 +1,16 @@
 package com.safehome.disenosoft.safehome;
 
 import android.app.Activity;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -89,6 +93,19 @@ public class MainActivity extends AppCompatActivity
 
         inicializar();
 
+        stopService();
+        startService();
+    }
+
+    public void startService() {
+        Intent serviceIntent = new Intent(this, NotificationService.class);
+        serviceIntent.putExtra("miHabitante", miHabitante);
+        ContextCompat.startForegroundService(this, serviceIntent);
+    }
+
+    public void stopService() {
+        Intent serviceIntent = new Intent(this, NotificationService.class);
+        stopService(serviceIntent);
     }
 
     private void inicializar(){
