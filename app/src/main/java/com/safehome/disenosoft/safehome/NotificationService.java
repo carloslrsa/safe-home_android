@@ -25,13 +25,30 @@ public class NotificationService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+
     }
 
+    Notification notification = null;
 
+    Habitante miHabitante = null;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        //final Habitante miHabitante = (Habitante) intent.getSerializableExtra("habitante");
+        miHabitante = (Habitante) intent.getSerializableExtra("habitante");
+
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+        notificationIntent.putExtra("habitante",miHabitante);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this,
+                0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setContentTitle("Safe Home")
+                .setContentText("Presione aquí para abrir la aplicación")
+                .setSmallIcon(R.drawable.logo_safehome)
+                .setContentIntent(pendingIntent)
+                .build();
+
+        startForeground(1,notification);
 
 
         new Thread(new Runnable() {
@@ -60,10 +77,10 @@ public class NotificationService extends Service {
     }
 
     private void crearNotificacion(ArrayList<Rostro> rostros){
-        Intent notificationIntent = new Intent(this, LoginActivity.class);
-        //notificationIntent.putExtra("habitante",miHabitante);
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+        notificationIntent.putExtra("habitante",miHabitante);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
-                0, notificationIntent, 0);
+                0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         boolean hayDesconocidos = false;
         String mensaje = "";
@@ -95,13 +112,14 @@ public class NotificationService extends Service {
             mensaje = nombres + " están en tu puerta!";
         }
 
-        Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+        notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Se han detectado rostros")
                 .setContentText(mensaje)
                 .setSmallIcon(R.drawable.logo_safehome)
                 .setContentIntent(pendingIntent)
                 .build();
 
+        //stopForeground();
         startForeground(1, notification);
     }
 

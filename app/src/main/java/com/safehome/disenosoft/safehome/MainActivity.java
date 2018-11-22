@@ -27,6 +27,8 @@ import com.safehome.disenosoft.safehome.Servicios.Habitante;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    public static  MainActivity instancia;
+
     private final int MODIFICACION_CODIGORESPUESTA = 0;
 
     ImageView foto;
@@ -39,6 +41,8 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        instancia = this;
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -93,12 +97,13 @@ public class MainActivity extends AppCompatActivity
 
         inicializar();
 
-        //stopService();
-        //startService();
+        stopService();
+        startService();
     }
 
     public void startService() {
         Intent serviceIntent = new Intent(this, NotificationService.class);
+        serviceIntent.putExtra("habitante",miHabitante);
         ContextCompat.startForegroundService(this, serviceIntent);
     }
 
